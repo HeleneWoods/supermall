@@ -2,8 +2,8 @@ import axios from 'axios'
 
 export function request(config) {
   const isntance1 = axios.create({
-    baseURL: 'http://152.136.185.210:8000/api/n3',
-    timeout: 3000
+    baseURL: 'http://152.136.185.210:8000/api/z8',
+    timeout: 5000
   })
 
   isntance1.interceptors.request.use(config => {

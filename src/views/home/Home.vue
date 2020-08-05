@@ -1,77 +1,27 @@
 <template>
 <div id="home">
-  <nav-bar class="home-nav">
-    <div slot="center">购物街</div>
-  </nav-bar>
-
-    <scroll class="content" ref="scroll" 
-            :probe-type="3" 
-            @scroll="contentScroll"
-            :pull-up-load="true"
-            @pullingUp="loadMore">
-      <home-swiper :banners="banners"></home-swiper>
-      <recommend-view :recommends="recommends"></recommend-view>
-      <feature-view></feature-view>
-      <tab-control class="tab_control" 
-                  :titles="['流行','新款','精选']"
-                  @tabClick="tabClick"></tab-control>
-      <goods-list :goods="showGoods"></goods-list>
-    </scroll>
+  <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+  <tab-control :titles="['流行','新款','精选']"
+               @tabClick="tabClick"
+               ref="tabControl1"
+               class="tabControl" v-show="isTabFixed"/>
+    
+  <scroll class="content" ref="scroll" 
+          :probe-type="3" 
+          @scroll="contentScroll"
+          :pull-up-load="true"
+          @pullingUp="loadMore">
+    <home-swiper :banners="banners" @swiperImgLoad="swiperImgLoad"></home-swiper>
+    <recommend-view :recommends="recommends"></recommend-view>
+    <feature-view></feature-view>
+    <tab-control :titles="['流行','新款','精选']"
+                  @tabClick="tabClick"
+                  ref="tabControl2"/>
+    <goods-list :goods="showGoods"></goods-list>
+  </scroll>
 
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
 
-  <ul>
-    <li>列表1</li>
-    <li>列表2</li>
-    <li>列表3</li>
-    <li>列表4</li>
-    <li>列表5</li>
-    <li>列表6</li>
-    <li>列表7</li>
-    <li>列表8</li>
-    <li>列表9</li>
-    <li>列表10</li>
-    <li>列表11</li>
-    <li>列表12</li>
-    <li>列表13</li>
-    <li>列表14</li>
-    <li>列表15</li>
-    <li>列表16</li>
-    <li>列表17</li>
-    <li>列表18</li>
-    <li>列表19</li>
-    <li>列表20</li>
-    <li>列表21</li>
-    <li>列表22</li>
-    <li>列表23</li>
-    <li>列表24</li>
-    <li>列表25</li>
-    <li>列表26</li>
-    <li>列表27</li>
-    <li>列表28</li>
-    <li>列表29</li>
-    <li>列表30</li>
-    <li>列表31</li>
-    <li>列表32</li>
-    <li>列表33</li>
-    <li>列表34</li>
-    <li>列表35</li>
-    <li>列表36</li>
-    <li>列表37</li>
-    <li>列表38</li>
-    <li>列表39</li>
-    <li>列表40</li>
-    <li>列表41</li>
-    <li>列表42</li>
-    <li>列表43</li>
-    <li>列表44</li>
-    <li>列表45</li>
-    <li>列表46</li>
-    <li>列表47</li>
-    <li>列表48</li>
-    <li>列表49</li>
-    <li>列表50</li>
-  </ul>
 </div>
 </template>
 
@@ -84,12 +34,9 @@ import NavBar from 'common/navbar/NavBar'
 import TabControl from 'content/tabControl/TabControl'
 import GoodsList from 'content/goods/GoodsList'
 import Scroll from 'common/scroll/Scroll'
-import BackTop from 'content/backTop/BackTop';
 
 import {getHomeMultidata,getHomeGoods} from 'network/home'
-
-
-
+import {itemListenerMixin,backTopMixin} from '@/common/mixin'
 
 
 export default {
@@ -101,26 +48,39 @@ export default {
     NavBar,
     TabControl,
     GoodsList,
-    Scroll,
-    BackTop
+    Scroll
   },
+  mixins:[itemListenerMixin,backTopMixin],
   data(){
     return{
       banners:[],
       recommends:[],
-      goods:{
+      goods:{ 
         'pop':{page:0,list:[]},
         'new':{page:0,list:[]},
         'sell':{page:0,list:[]},
       },
       currentType:'pop',
-      isShowBackTop:false
+      tabOffsetTop:0,
+      isTabFixed:false,
+      saveY:0,
     }
   },
   computed:{
     showGoods(){
       return this.goods[this.currentType].list
     }
+  },
+  activated(){
+    this.$refs.scroll.scrollTo(0,this.saveY)
+    this.$refs.scroll.refresh()
+  },
+  deactivated(){
+    // 保存Y值
+    this.saveY=this.$refs.scroll.scroll.y
+    
+    // 取消全局事件的监听
+    this.$bus.$off('itemImgLoad',this.itemImgListener)
   },
   created(){
     // 1.请求多个数据
@@ -130,6 +90,13 @@ export default {
     this.getHomeGoods('pop')
     this.getHomeGoods('new')
     this.getHomeGoods('sell')
+
+
+  },
+  mounted(){
+    // 获取tabControl的offsetTop
+    // 所有组件都有一个属性$el：用于获取组件中的元素
+    // this.tabOffsetTop=this.$refs.tabControl.$el.offsetTop
   },
   methods:{
     // 事件监听相关
@@ -145,16 +112,22 @@ export default {
           this.currentType='sell'
           
       }
-
-    },
-    backClick(){
-      this.$refs.scroll.scrollTo(0,0,500)
+      this.$refs.tabControl1.currentIndex=index;
+      this.$refs.tabControl2.currentIndex=index;
     },
     contentScroll(position){
-      this.isShowBackTop=(-position.y)>1000
+      // 判断backTop是否显示
+      this.listenShowBackTop(position)
+      
+      //决定tabControl是否吸顶
+      this.isTabFixed=(-position.y)>this.$refs.tabControl2.$el.offsetTop
+      // console.log(this.$refs.tabControl2.$el.offsetTop);
     },
     loadMore(){
       this.getHomeGoods(this.currentType)
+    },
+    swiperImgLoad(){
+      this.tabOffsetTop=this.$refs.tabControl2.$el.offsetTop;
     },
 
     // 网络请求相关
@@ -170,7 +143,8 @@ export default {
        this.goods[type].list.push(...res.data.list)
        this.goods[type].page+=1;
        
-       this.$refs.scroll.finishPullUp()
+      //  完成上拉加载更多
+      this.$refs.scroll.finishPullUp()
     })
     }
   }
@@ -178,37 +152,39 @@ export default {
 </script>
 
 <style scoped>
-  #home{
-    /* padding-top: 44px; */
-    height: 100vh;
-  }
+  /* #home{
+    padding-top: 44px; */
+    /* height: 100vh; */
+    /* position: relative;
+  } */
   .home-nav{
     background-color: var(--color-tint);
     color: #fff;
-    position: fixed;
+
+    /* position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 9;
-  }
-  .tab_control{
-    /* position: sticky; */
-    top:44px;
-    z-index: 9;
-  }
-  .content{
-    height: calc(100% - 93px);
-    overflow: hidden;
-    margin-top: 44px;
+    z-index: 9; */
   }
 
-  /* 这种写法也可以，别忘了给父元素加上个position：relative */
+  /* 这种写法也可以，但后续处理吸顶的效果不好 */
   /* .content{
+    height: calc(100% - 93px);
+    overflow: hidden;
+  } */
+
+  .content{
     overflow: hidden;
     position: absolute;
     top: 44px;
     bottom: 49px;
     left: 0;
     right: 0;
-  } */
+  }
+
+  .tabControl{
+    position: relative;
+    z-index: 9;
+  }
 </style>

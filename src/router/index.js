@@ -9,6 +9,8 @@ const Cart = () =>
   import ('../views/cart/Cart.vue')
 const Profile = () =>
   import ('../views/profile/Profile.vue')
+const Detail = () =>
+  import ('../views/detail/Detail.vue')
 
 Vue.use(VueRouter)
 
@@ -32,6 +34,10 @@ const routes = [{
     path: '/profile',
     component: Profile
   },
+  {
+    path: '/detail/:id',
+    component: Detail
+  },
 ]
 
 const router = new VueRouter({
@@ -40,3 +46,8 @@ const router = new VueRouter({
 })
 
 export default router
+
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
