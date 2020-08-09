@@ -20,7 +20,7 @@
     <goods-list :goods="showGoods"></goods-list>
   </scroll>
 
-    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+  <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
 
 </div>
 </template>
@@ -152,11 +152,11 @@ export default {
 </script>
 
 <style scoped>
-  /* #home{
-    padding-top: 44px; */
-    /* height: 100vh; */
-    /* position: relative;
-  } */
+  #home{
+    /* padding-top: 44px; */
+    height: 100vh;
+    /* position: relative; */
+  }
   .home-nav{
     background-color: var(--color-tint);
     color: #fff;

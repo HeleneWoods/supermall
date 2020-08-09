@@ -7,9 +7,9 @@
         <span class="collect">{{goodsItem.cfav}}</span>
       </div>
     </div>
-</template>
+</template> 
 
-<script>
+<script> 
 export default {
   name:'GoodsListItem',
   props:{
@@ -22,7 +22,8 @@ export default {
   },
   computed:{
     showImage(){
-      return this.goodsItem.image || this.goodsItem.show.img
+      // return this.goodsItem.image || this.goodsItem.img || this.goodsItem.show.img
+      return this.goodsItem.show?this.goodsItem.show.img:false||this.goodsItem.image || this.goodsItem.img 
     }
   },
   methods:{
@@ -43,14 +44,15 @@ export default {
 </script>
 
 <style scoped>
-.goods {
+ .goods {
     padding-bottom: 40px;
     position: relative;
     width: 48%;
   }
   .goods img {
     width: 100%;
-    border-radius: 5px;
+    border-radius: 3px;
+    height: 100%;
   }
 
   .goods-info {

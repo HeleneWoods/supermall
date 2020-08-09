@@ -4,16 +4,22 @@
       <router-view></router-view>
     </keep-alive>
     <main-tab-bar></main-tab-bar>
+    <icon></icon>
+    <svg-icon></svg-icon>
   </div>
 </template>
 
 <script>
 import MainTabBar from 'content/mainTabBar/MainTabBar'
+import Icon from 'content/Icon/Icon.vue'
+import SvgIcon from 'content/Icon/svg.vue'
 
 export default {
   name: 'App',
   components: {
-    MainTabBar
+    MainTabBar,
+    Icon,
+    SvgIcon
   }
 }
 </script>

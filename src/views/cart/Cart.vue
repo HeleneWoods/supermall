@@ -40,6 +40,9 @@ export default {
 </script>
 
 <style scoped>
+  #cart{
+    height: 100vh;
+  }
   .navbar{
     background-color: var(--color-tint);
     color: white;

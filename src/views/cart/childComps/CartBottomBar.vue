@@ -65,7 +65,7 @@ export default {
 
 <style scoped>
   .bottom_bar{
-    position: fixed;
+    position: fixed; 
     bottom: 49px;
     display: flex;
 
